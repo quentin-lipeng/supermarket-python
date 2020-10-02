@@ -3,107 +3,82 @@ from tkinter import ttk
 from src import goods_stuff as gs
 import asyncio
 
-USER_MONEY = 0
 
-total_price = 0
-
-
-def root():
-    win_ = tk.Tk()
-    win_.geometry('200x200')
-    return win_
-
-
-win = root()
-
-
+#  程序主入口
 def main():
     user_mon_in(win)
     win.mainloop()
 
 
-#  用户输入账户钱的页面
-#  待完善 输入必须全数字
+#  用户输入账户钱的页面 入口界面
 def user_mon_in(window):
-    fm_user_in = tk.Frame(window, height=300, width=300, bd=3)
-    fm_user_in.place(x=0, y=0)
+    fm_user_in = fm_()
 
-    la_user_money = tk.Label(fm_user_in, text='enter your money')
-    la_user_money.place(x=30, y=30)
+    tk.Label(fm_user_in, text='enter your money').place(x=30, y=30)
+    #  用户金额输入框
     en_user_money = tk.Entry(fm_user_in)
     en_user_money.place(x=30, y=60)
 
+    #  输入验证 检测是否为全数字
     def user_mon_in_enter():
         global USER_MONEY
         USER_MONEY = en_user_money.get()
 
         if USER_MONEY.isnumeric():
+            #  销毁输入金额的frame
             fm_user_in.destroy()
-            user_choose(window)
-            tw_cart(window)
-            tw_goods(window)
-            window.geometry('440x350')
+            user_choose()
+            tw_cart()
+            tw_goods()
+            window.geometry('440x260')
         else:
             en_user_money.delete(0, len(USER_MONEY))
-            tk.Label(window, text='invalid input!').place(x=30, y=95)
+            tk.Label(fm_user_in, text='invalid input!').place(x=30, y=90)
             return
 
     btn_user_money = tk.Button(fm_user_in, text='enter', command=user_mon_in_enter)
     btn_user_money.place(x=115, y=90)
 
 
-def la_user_mon(window):
-    tk.Label(window, text=USER_MONEY).place(x=310, y=40)
-
-
-is_fm_cart_destroy = False
-
-
-def user_choose(window):
+def user_choose():
+    var_user_mon.set(USER_MONEY)
     user_choose_x_pos = 310
 
-    la_goods_info_tittle = tk.Label(window, text='商品信息')
+    la_goods_info_tittle = tk.Label(win, text='商品信息')
     la_goods_info_tittle.place(x=160, y=0)
 
-    tk.Label(window, text='Your Money :').place(x=310, y=20)
+    tk.Label(win, text='Your Money :').place(x=user_choose_x_pos, y=20)
 
     def change_view(v_name):
         if v_name == 'goods':
-            fm_cart(window).place_forget()
-            fm_goods(window).place(x=0, y=60)
-            pass
+            fm_cart.place_forget()
+            fm_goods.place(x=0, y=35)
         elif v_name == 'carts':
-            fm_goods(window).place_forget()
-            fm_cart(window).place(x=0, y=60)
-            pass
+            fm_goods.place_forget()
+            fm_cart.place(x=0, y=35)
 
-    btn_goods_info = tk.Button(window, text='goods', width=7, command=lambda: change_view('goods'))
-    btn_goods_info.place(x=30, y=25)
-    btn_goods_cart = tk.Button(window, text='cart', width=7, command=lambda: change_view('carts'))
-    btn_goods_cart.place(x=90, y=25)
+    tk.Button(win, text='goods', width=7, command=lambda: change_view('goods')).place(x=30, y=25)
+    tk.Button(win, text='cart', width=7, command=lambda: change_view('carts')).place(x=90, y=25)
 
-    #  显示当前资资金
-    la_user_mon(window)
-
-    tk.Label(window, text='Id of goods').place(x=user_choose_x_pos, y=70)
-    en_user_choose_id = tk.Entry(window, width=15)
+    tk.Label(win, text='Id of goods').place(x=user_choose_x_pos, y=70)
+    en_user_choose_id = tk.Entry(win, width=15)
     en_user_choose_id.place(x=user_choose_x_pos, y=95)
 
-    tk.Label(window, text='Quantity of goods').place(x=user_choose_x_pos, y=120)
-    en_user_choose_quantity = tk.Entry(window, width=15)
+    tk.Label(win, text='Quantity of goods').place(x=user_choose_x_pos, y=120)
+    en_user_choose_quantity = tk.Entry(win, width=15)
     en_user_choose_quantity.place(x=user_choose_x_pos, y=145)
 
     #  警告文字 如果用户输入的id不正确 要定义在按钮出发的方法内而不能在方法的方法内 会不更新数据
-    s_var_warning = tk.StringVar(window, value='')
+    s_var_warning = tk.StringVar(win, value='')
 
     def user_goods_purchase():
         in_id = en_user_choose_id.get()
         in_qua = en_user_choose_quantity.get()
 
         #  非法输入的警告Label
-        tk.Label(window, textvariable=s_var_warning).place(x=user_choose_x_pos, y=190)
+        tk.Label(win, textvariable=s_var_warning).place(x=user_choose_x_pos, y=190)
 
-        if int(in_id) in info_of_goods()[0]:
+        if int(in_id) in [good_id[0] for good_id in info_of_goods()]:
             s_var_warning.set('')
             tw_cart_info_.insert('', 'end', values=(in_id, in_qua))
         else:
@@ -113,54 +88,28 @@ def user_choose(window):
         en_user_choose_id.delete(0, len(in_id))
         en_user_choose_quantity.delete(0, len(in_qua))
 
-    btn_user_choose_purchase = tk.Button(window, text='Purchase', command=user_goods_purchase)
-    btn_user_choose_purchase.place(x=user_choose_x_pos, y=170)
+    tk.Button(win, text='Purchase', command=user_goods_purchase).place(x=user_choose_x_pos, y=170)
 
 
-def fm_(window):
-    new_fm = tk.Frame(window, height=300, width=300, bd=3)
-    new_fm.place(x=0, y=60)
-    return new_fm
+async def fund_warning():
+    win_ = root()
+    tk.Label(win_, text='Insufficient fund').place(x=20, y=30)
+    await asyncio.sleep(2)
 
 
-fm_goods_ = None
-fm_cart_ = None
-
-
-def fm_goods(window):
-    global fm_goods_
-    if fm_goods_ is None:
-        fm_goods_ = fm_(window)
-    return fm_goods_
-
-
-def fm_cart(window):
-    global fm_cart_
-    if fm_cart_ is None or is_fm_cart_destroy:
-        fm_cart_ = fm_(window)
-    return fm_cart_
-
-
-tw_goods_info_ = ttk.Treeview(fm_goods(win), columns=gs.goods_info_headings, show='headings', height=5)
+#  滚动条
+def scroll_tw(master, tw):
+    scroll_ = tk.Scrollbar(master, orient='vertical', command=tw.yview())
+    scroll_.configure(command=tw.yview)
+    scroll_.place(x=280, y=30)
+    return scroll_
 
 
 #  商品展示 TreeView
-def tw_goods(window):
-    global tw_goods_info_
-    info_headings = gs.goods_info_headings
-    my_fm_goods = fm_goods(window)
+def tw_goods():
+    global fm_goods
 
-    for i in range(len(info_headings)):
-        tw_goods_info_.heading(info_headings[i], text=info_headings[i])
-
-    tw_goods_info_.column(info_headings[0], width=50, anchor='center')
-    tw_goods_info_.column(info_headings[1], width=110, anchor='center')
-    tw_goods_info_.column(info_headings[2], width=80, anchor='center')
-    tw_goods_info_.place(x=20, y=30)
-
-    scroll_goods = tk.Scrollbar(my_fm_goods, orient='vertical', command=tw_goods_info_.yview())
-    scroll_goods.configure(command=tw_goods_info_.yview)
-    scroll_goods.place(x=280, y=30)
+    scroll_tw(fm_goods, tw_goods_info_)
 
     def load_goods(tree_view):
         for i_, v in enumerate(gs.all_goods):
@@ -170,31 +119,8 @@ def tw_goods(window):
     load_goods(tw_goods_info_)
 
 
-async def fund_warning():
-    win_ = root()
-    tk.Label(win_, text='Insufficient fund').place(x=20, y=30)
-    await asyncio.sleep(2)
-
-
-tw_cart_info_ = ttk.Treeview(fm_cart(win), columns=gs.carts_info_headings, show='headings', height=5)
-
-
-def tw_cart(window):
-    #  总价格
-    #  购物车的frame
-    carts = gs.carts_info_headings
-    my_fm_cart = fm_cart(window)
-
-    for i in range(2):
-        tw_cart_info_.heading(carts[i], text=carts[i])
-
-    tw_cart_info_.column(carts[0], width=160, anchor='center')
-    tw_cart_info_.column(carts[1], width=80, anchor='center')
-    tw_cart_info_.place(x=20, y=30)
-
-    scroll_carts = tk.Scrollbar(my_fm_cart, orient='vertical', command=tw_cart_info_.yview())
-    scroll_carts.configure(command=tw_cart_info_.yview)
-    scroll_carts.place(x=280, y=30)
+def tw_cart():
+    scroll_tw(fm_cart, tw_cart_info_)
 
     def carts_total():
         total_price_ = 0
@@ -216,13 +142,41 @@ def tw_cart(window):
         last_money = float(USER_MONEY) - total_price
         if last_money < 0:
             await fund_warning()
-            window.destroy()
+            win.destroy()
             return
-        USER_MONEY = last_money
-        tk.Label(window, text='total amount :' + str(total_price)).place(x=20, y=250)
-        la_user_mon(window)
 
-    tk.Button(my_fm_cart, text='check', command=lambda: asyncio.run(payment())).place(x=220, y=160)
+        # 每次结算清空购物车内商品
+        [tw_cart_info_.delete(item_) for item_ in tw_cart_info_.get_children()]
+
+        USER_MONEY = last_money
+        tk.Label(fm_cart, text='total amount :' + str(total_price)).place(x=20, y=165)
+        var_user_mon.set(USER_MONEY)
+
+    tk.Button(fm_cart, text='check', command=lambda: asyncio.run(payment())).place(x=220, y=160)
+
+
+def tw_(master, **kwargs):
+    """
+    :kwargs
+        heading(list): 列名
+        widths(list): 列宽度
+    """
+    heading = kwargs['heading']
+    widths = kwargs['widths']
+    tw = ttk.Treeview(master, columns=heading, show='headings', height=5)
+
+    for i in range(len(heading)):
+        tw.heading(heading[i], text=heading[i])
+        tw.column(heading[i], width=widths[i], anchor='center')
+
+    tw.place(x=20, y=30)
+    return tw
+
+
+def fm_():
+    new_fm = tk.Frame(win, height=300, width=300, bd=3)
+    new_fm.place(x=0, y=35)
+    return new_fm
 
 
 #  从treeView获取商品信息
@@ -234,5 +188,22 @@ def info_of_goods():
 def info_of_carts():
     return [tw_cart_info_.item(item)['values'] for item in tw_cart_info_.get_children()]
 
+
+def root():
+    win_ = tk.Tk()
+    win_.geometry('200x200')
+    return win_
+
+
+USER_MONEY = 0
+total_price = 0
+win = root()
+fm_goods = fm_()
+fm_cart = fm_()
+var_user_mon = tk.StringVar()
+#  用户金额
+la_user_mon = tk.Label(win, textvariable=var_user_mon).place(x=310, y=40)
+tw_cart_info_ = tw_(fm_cart, heading=gs.carts_info_headings, widths=[160, 80])
+tw_goods_info_ = tw_(fm_goods, heading=gs.goods_info_headings, widths=[50, 110, 80])
 
 main()
