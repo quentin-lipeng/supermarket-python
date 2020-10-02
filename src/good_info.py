@@ -4,23 +4,22 @@ from src import goods_stuff as gs
 import asyncio
 
 USER_MONEY = 0
-#  用户购物车商品
-USER_CARTS = []
 
 total_price = 0
 
 
-def main():
-    win = root()
+def root():
+    win_ = tk.Tk()
+    win_.geometry('200x200')
+    return win_
 
+
+win = root()
+
+
+def main():
     user_mon_in(win)
     win.mainloop()
-
-
-def root():
-    win = tk.Tk()
-    win.geometry('200x200')
-    return win
 
 
 #  用户输入账户钱的页面
@@ -41,6 +40,7 @@ def user_mon_in(window):
         if USER_MONEY.isnumeric():
             fm_user_in.destroy()
             user_choose(window)
+            tw_cart(window)
             tw_goods(window)
             window.geometry('440x350')
         else:
@@ -56,8 +56,7 @@ def la_user_mon(window):
     tk.Label(window, text=USER_MONEY).place(x=310, y=40)
 
 
-def list_fm_good_cart():
-    return []
+is_fm_cart_destroy = False
 
 
 def user_choose(window):
@@ -70,11 +69,13 @@ def user_choose(window):
 
     def change_view(v_name):
         if v_name == 'goods':
-            fm_cart(window).destroy()
-            tw_goods(window)
+            fm_cart(window).place_forget()
+            fm_goods(window).place(x=0, y=60)
+            pass
         elif v_name == 'carts':
-            fm_goods(window).destroy()
-            tw_cart(window)
+            fm_goods(window).place_forget()
+            fm_cart(window).place(x=0, y=60)
+            pass
 
     btn_goods_info = tk.Button(window, text='goods', width=7, command=lambda: change_view('goods'))
     btn_goods_info.place(x=30, y=25)
@@ -95,20 +96,16 @@ def user_choose(window):
     #  警告文字 如果用户输入的id不正确 要定义在按钮出发的方法内而不能在方法的方法内 会不更新数据
     s_var_warning = tk.StringVar(window, value='')
 
-    def ids_of_goods():
-        goods_view = tw_goods(window)
-        return [goods_view.item(v)['values'][0] for v in goods_view.get_children()]
-
     def user_goods_purchase():
         in_id = en_user_choose_id.get()
         in_qua = en_user_choose_quantity.get()
 
-        la_input_warning = tk.Label(window, textvariable=s_var_warning)
-        la_input_warning.place(x=user_choose_x_pos, y=190)
+        #  非法输入的警告Label
+        tk.Label(window, textvariable=s_var_warning).place(x=user_choose_x_pos, y=190)
 
-        if int(in_id) in ids_of_goods():
-            USER_CARTS.append([in_id, in_qua])
+        if int(in_id) in info_of_goods()[0]:
             s_var_warning.set('')
+            tw_cart_info_.insert('', 'end', values=(in_id, in_qua))
         else:
             s_var_warning.set('invalid input\nenter again')
 
@@ -120,40 +117,49 @@ def user_choose(window):
     btn_user_choose_purchase.place(x=user_choose_x_pos, y=170)
 
 
-fm_goods_ = None
-fm_cart_ = None
-
-
 def fm_(window):
     new_fm = tk.Frame(window, height=300, width=300, bd=3)
     new_fm.place(x=0, y=60)
     return new_fm
 
 
+fm_goods_ = None
+fm_cart_ = None
+
+
 def fm_goods(window):
-    return fm_(window)
+    global fm_goods_
+    if fm_goods_ is None:
+        fm_goods_ = fm_(window)
+    return fm_goods_
 
 
 def fm_cart(window):
-    return fm_(window)
+    global fm_cart_
+    if fm_cart_ is None or is_fm_cart_destroy:
+        fm_cart_ = fm_(window)
+    return fm_cart_
+
+
+tw_goods_info_ = ttk.Treeview(fm_goods(win), columns=gs.goods_info_headings, show='headings', height=5)
 
 
 #  商品展示 TreeView
 def tw_goods(window):
+    global tw_goods_info_
     info_headings = gs.goods_info_headings
     my_fm_goods = fm_goods(window)
-    tw_goods_info = ttk.Treeview(my_fm_goods, columns=info_headings, show='headings', height=5)
 
     for i in range(len(info_headings)):
-        tw_goods_info.heading(info_headings[i], text=info_headings[i])
+        tw_goods_info_.heading(info_headings[i], text=info_headings[i])
 
-    tw_goods_info.column(info_headings[0], width=50, anchor='center')
-    tw_goods_info.column(info_headings[1], width=110, anchor='center')
-    tw_goods_info.column(info_headings[2], width=80, anchor='center')
-    tw_goods_info.place(x=20, y=30)
+    tw_goods_info_.column(info_headings[0], width=50, anchor='center')
+    tw_goods_info_.column(info_headings[1], width=110, anchor='center')
+    tw_goods_info_.column(info_headings[2], width=80, anchor='center')
+    tw_goods_info_.place(x=20, y=30)
 
-    scroll_goods = tk.Scrollbar(my_fm_goods, orient='vertical', command=tw_goods_info.yview())
-    scroll_goods.configure(command=tw_goods_info.yview)
+    scroll_goods = tk.Scrollbar(my_fm_goods, orient='vertical', command=tw_goods_info_.yview())
+    scroll_goods.configure(command=tw_goods_info_.yview)
     scroll_goods.place(x=280, y=30)
 
     def load_goods(tree_view):
@@ -161,8 +167,7 @@ def tw_goods(window):
             tree_view.insert('', i_, values=v)
 
     #  加载所有商品信息
-    load_goods(tw_goods_info)
-    return tw_goods_info
+    load_goods(tw_goods_info_)
 
 
 async def fund_warning():
@@ -171,45 +176,35 @@ async def fund_warning():
     await asyncio.sleep(2)
 
 
+tw_cart_info_ = ttk.Treeview(fm_cart(win), columns=gs.carts_info_headings, show='headings', height=5)
+
+
 def tw_cart(window):
     #  总价格
     #  购物车的frame
     carts = gs.carts_info_headings
     my_fm_cart = fm_cart(window)
 
-    tw_carts_info = ttk.Treeview(my_fm_cart, columns=carts, show='headings', height=5)
-
     for i in range(2):
-        tw_carts_info.heading(carts[i], text=carts[i])
+        tw_cart_info_.heading(carts[i], text=carts[i])
 
-    tw_carts_info.column(carts[0], width=160, anchor='center')
-    tw_carts_info.column(carts[1], width=80, anchor='center')
-    tw_carts_info.place(x=20, y=30)
+    tw_cart_info_.column(carts[0], width=160, anchor='center')
+    tw_cart_info_.column(carts[1], width=80, anchor='center')
+    tw_cart_info_.place(x=20, y=30)
 
-    scroll_carts = tk.Scrollbar(my_fm_cart, orient='vertical', command=tw_carts_info.yview())
-    scroll_carts.configure(command=tw_carts_info.yview)
+    scroll_carts = tk.Scrollbar(my_fm_cart, orient='vertical', command=tw_cart_info_.yview())
+    scroll_carts.configure(command=tw_cart_info_.yview)
     scroll_carts.place(x=280, y=30)
-
-    #  待完善 每次查询购物车中商品是否重复 重复就叠加起来 但意义不大
-    def check_carts(carts_):
-        pass
-
-    def load_carts(tree_view):
-        for i_, v in enumerate(USER_CARTS):
-            tree_view.insert('', i_, values=v)
-
-    load_carts(tw_carts_info)
-
-    def ids_of_goods():
-        goods_view = tw_goods(window)
-        return [goods_view.item(v)['values'] for v in goods_view.get_children()]
 
     def carts_total():
         total_price_ = 0
-        for carts_count in USER_CARTS:
-            for price_good in ids_of_goods():
-                if carts_count[0] == str(price_good[0]):
-                    total_price_ += int(carts_count[1]) * price_good[2]
+
+        #  循环次数为购物车条目数量
+        for cart_item in info_of_carts():
+            #  获取购物车的每条数据
+            for price_good in info_of_goods():
+                if cart_item[0] == price_good[0]:
+                    total_price_ += int(cart_item[1]) * price_good[2]
                     break
         return total_price_
 
@@ -229,7 +224,15 @@ def tw_cart(window):
 
     tk.Button(my_fm_cart, text='check', command=lambda: asyncio.run(payment())).place(x=220, y=160)
 
-    return tw_carts_info
+
+#  从treeView获取商品信息
+def info_of_goods():
+    return [tw_goods_info_.item(item)['values'] for item in tw_goods_info_.get_children()]
+
+
+#  从treeView获取购物车信息
+def info_of_carts():
+    return [tw_cart_info_.item(item)['values'] for item in tw_cart_info_.get_children()]
 
 
 main()
