@@ -58,7 +58,7 @@ def user_choose():
         en_user_choose_quantity.delete(0, len(in_qua))
 
     tk.Button(win, text='Purchase', command=user_goods_purchase).place(x=module.user_choose_x_pos, y=170)
-    tk.Button(module.fm_carts, text='check', command=lambda: asyncio.run(module.payment())).place(x=220, y=160)
+    tk.Button(module.fm_carts, text='check', command=lambda: module.payment()).place(x=220, y=160)
     return module
 
 

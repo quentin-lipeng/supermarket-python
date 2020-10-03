@@ -136,7 +136,7 @@ class Module:
         return [self.tw_goods.item(item)['values'] for item in self.tw_goods.get_children()]
 
     #  结算方法 金额不足时推出程序
-    async def payment(self):
+    def payment(self):
         #  购物车总金额
         total_price = self.carts_total()
         last_money = float(self.USER_MONEY) - total_price
