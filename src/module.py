@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from src import goods_stuff as gs
-import asyncio
 
 
 def fm_(win):
@@ -34,10 +33,10 @@ def tw_(master, **kwargs):
     return tw
 
 
-async def fund_warning():
+def fund_warning():
     win_ = root()
     tk.Label(win_, text='Insufficient fund').place(x=20, y=30)
-    await asyncio.sleep(2)
+    tk.Button(win_, text='exit', command=win_.destroy).place(x=20, y=50)
 
 
 def scroll_tw(master, tw):
@@ -142,7 +141,7 @@ class Module:
         total_price = self.carts_total()
         last_money = float(self.USER_MONEY) - total_price
         if last_money < 0:
-            await fund_warning()
+            fund_warning()
             self.win.destroy()
             return
 
