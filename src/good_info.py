@@ -69,15 +69,12 @@ def user_choose():
     en_user_choose_quantity.place(x=user_choose_x_pos, y=145)
 
     #  警告文字 如果用户输入的id不正确 要定义在按钮出发的方法内而不能在方法的方法内 会不更新数据
-    s_var_warning = tk.StringVar(win, value='')
 
     def user_goods_purchase():
         in_id = en_user_choose_id.get()
         in_qua = en_user_choose_quantity.get()
 
         #  非法输入的警告Label
-        tk.Label(win, textvariable=s_var_warning).place(x=user_choose_x_pos, y=190)
-
         if int(in_id) in [good_id[0] for good_id in info_of_goods()]:
             s_var_warning.set('')
             tw_cart_info_.insert('', 'end', values=(in_id, in_qua))
@@ -107,8 +104,6 @@ def scroll_tw(master, tw):
 
 #  商品展示 TreeView
 def tw_goods():
-    global fm_goods
-
     scroll_tw(fm_goods, tw_goods_info_)
 
     def load_goods(tree_view):
@@ -189,6 +184,12 @@ def info_of_carts():
     return [tw_cart_info_.item(item)['values'] for item in tw_cart_info_.get_children()]
 
 
+def la_in_id_war():
+    la__warning = tk.Label(win, textvariable=s_var_warning)
+    la__warning.place(x=310, y=200)
+    return la__warning
+
+
 def root():
     win_ = tk.Tk()
     win_.geometry('200x200')
@@ -200,6 +201,11 @@ total_price = 0
 win = root()
 fm_goods = fm_()
 fm_cart = fm_()
+
+#  查找id验证警告
+s_var_warning = tk.StringVar()
+la_in_id_warning = la_in_id_war()
+#  用户金额
 var_user_mon = tk.StringVar()
 #  用户金额
 la_user_mon = tk.Label(win, textvariable=var_user_mon).place(x=310, y=40)
