@@ -27,6 +27,7 @@ def user_mon_in(window):
     tk.Button(fm_user_in, text='enter', command=user_mon_in_enter).place(x=115, y=90)
 
 
+#  标签待修改 过多的创建
 def user_choose():
     module = Module(win)
     module.var_user_mon.set(module.USER_MONEY)
