@@ -14,13 +14,3 @@ all_goods = [
     (9, 'soap', 12),
     (10, 'water', 18),
 ]
-
-
-class goods:
-    def __init__(self, id_, name, price):
-        self.id_ = id_
-        self.name = name
-        self.price = price
-
-    def info(self):
-        return self.id_, self.name, self.price
