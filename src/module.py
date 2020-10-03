@@ -53,10 +53,14 @@ class Module:
         #  用户金额
         self.USER_MONEY = 0
         self.user_choose_x_pos = 301
+        #  视图(当前窗口名称 goods/carts)
+        self.v_name = 'goods'
         #  用户金额
         self.var_user_mon = tk.StringVar()
-        #  警告
+        #  id输入非法警告
         self.s_var_warning = tk.StringVar()
+        #  当前view页面tittle
+        self.s_var_view_tittle = tk.StringVar(value=self.v_name)
         #  用户金额Label
         self.la_user_mon = tk.Label(win, textvariable=self.var_user_mon).place(x=310, y=40)
         #  购物车frame
@@ -67,8 +71,7 @@ class Module:
         self.tw_carts = tw_(self.fm_carts, heading=gs.carts_info_headings, widths=[160, 80])
         #  商品treeView
         self.tw_goods = tw_(self.fm_goods, heading=gs.goods_info_headings, widths=[50, 110, 80])
-        #  视图(当前窗口名称 goods/carts)
-        self.v_name = ''
+
         #  商品滚动条
         self.scroll_goods = scroll_tw(self.fm_goods, self.tw_goods)
         #  购物车滚动条
@@ -76,19 +79,19 @@ class Module:
         #  总消费金额
         self.__total_price_ = 0
         #  警告遇见label
-        self.la_in_id_war = tk.Label(win, textvariable=self.s_var_warning)
-        self.la_in_id_war.place(x=310, y=200)
+        self.la_in_id_war = tk.Label(win, textvariable=self.s_var_warning, fg='red')
+        self.la_in_id_war.place(x=300, y=200)
         #  主窗口tittle
-        self.la_tittle = tk.Label(self.win, text='商品信息')
+        self.la_tittle = tk.Label(self.win, font=("微软雅黑", 14), textvariable=self.s_var_view_tittle)
         self.la_tittle.place(x=160, y=0)
 
         #  金额标签
         self.la_mon_point = tk.Label(win, text='Your Money :').place(x=self.user_choose_x_pos, y=20)
 
         #  切换视图按钮
-        self.btn_goods_view = tk.Button(win, text='goods', width=7,
+        self.btn_goods_view = tk.Button(win, text='goods', width=7, background='#e8edd8',
                                         command=lambda: self.set_v_name('goods')).place(x=30, y=25)
-        self.btn_carts_view = tk.Button(win, text='cart', width=7,
+        self.btn_carts_view = tk.Button(win, text='cart', width=7, background='#e8edd8',
                                         command=lambda: self.set_v_name('carts')).place(x=90, y=25)
 
     #  设置/更新用户金额
@@ -109,6 +112,7 @@ class Module:
     def set_v_name(self, v_name):
         self.v_name = v_name
         self.__change_view()
+        self.s_var_view_tittle.set(self.v_name)
 
     #  加载商品页面信息
     def load_goods(self):
