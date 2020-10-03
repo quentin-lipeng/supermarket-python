@@ -1,4 +1,4 @@
-goods_info_headings = ['序号', '名称', '价格']
+goods_info_headings = ['Gid', 'Name', 'Price']
 carts_info_headings = ['Name', 'Quantity']
 
 
