@@ -33,8 +33,16 @@ def user_choose():
     module.var_user_mon.set(module.USER_MONEY)
     module.load_goods()
 
+    def valid_id(value):
+
+        if not int(value) in [good_id[0] for good_id in module.info_of_goods()]:
+            module.s_var_warning.set('invalid input\nenter again')
+
+    okay_cmd = win.register(valid_id)
+
     tk.Label(win, text='Id of goods').place(x=module.user_choose_x_pos, y=70)
     en_user_choose_id = tk.Entry(win, width=15)
+    en_user_choose_id.config(validate='focusout', validatecommand=(okay_cmd, '%P'))
     en_user_choose_id.place(x=module.user_choose_x_pos, y=95)
 
     tk.Label(win, text='Quantity of goods').place(x=module.user_choose_x_pos, y=120)
@@ -45,6 +53,9 @@ def user_choose():
     def user_goods_purchase():
         in_id = en_user_choose_id.get()
         in_qua = en_user_choose_quantity.get()
+
+        if in_id == '' or in_qua == '':
+            return
 
         #  非法输入的警告Label
         if int(in_id) in [good_id[0] for good_id in module.info_of_goods()]:

@@ -36,7 +36,7 @@ def tw_(master, **kwargs):
 def fund_warning():
     win_ = root()
     tk.Label(win_, text='Insufficient fund').place(x=20, y=30)
-    tk.Button(win_, text='exit', command=win_.destroy).place(x=20, y=50)
+    tk.Button(win_, text='exit', command=win_.quit).place(x=20, y=50)
 
 
 def scroll_tw(master, tw):
